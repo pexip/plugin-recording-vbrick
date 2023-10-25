@@ -1,0 +1,7 @@
+{
+  "vbrick": {
+    "url": "https://pexip.rev-eu.demo.vbrick.com",
+    "client_id": "recording-secret-key-94875",
+    "redirect_uri": "https://localhost:5173/local-plugin/redirect"
+  }
+}
