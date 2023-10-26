@@ -1,4 +1,4 @@
-import { authPopUpId } from '../authPopUp'
+import { authOPopUpOpts, authPopUpId } from '../authPopUp'
 import { StartButtonPayload } from './buttonGroup/StartButtonPayload'
 import { LogoutButtonPayload } from './buttonGroup/LogoutButtonPayload'
 import { ButtonId } from './buttonGroup/ButtonId'
@@ -10,8 +10,6 @@ import { Recording } from '../recording'
 import type { Button, RPCCallPayload } from '@pexip/plugin-api'
 import { StopButtonPayload } from './buttonGroup/StopButtonPayload'
 import { getPlugin } from '../plugin'
-
-const opts = 'toolbar=0,scrollbars=1,status=1,resizable=1,location=1,menuBar=0,width=500,height=500,left=250,top=250'
 
 const baseButtonPayload: RPCCallPayload<'ui:button:add'> = {
   position: 'toolbar',
@@ -30,7 +28,7 @@ export const initButton = async (): Promise<void> => {
     group: undefined,
     opensPopup: {
       id: authPopUpId,
-      openParams: [await Auth.getAuthUrl(), '', opts]
+      openParams: [await Auth.getAuthUrl(), '', authOPopUpOpts]
     }
   }
 
