@@ -17,8 +17,12 @@ const init = (): void => {
 
   // Initialize the videoId at the beginning of the conference
   plugin.events.me.add(() => {
-    videoId = ''
-    initButtonGroup().catch((e) => { console.error(e) })
+    if (!isAnotherRecordingActive()) {
+      videoId = ''
+      if (Auth.getUser() != null) {
+        initButtonGroup().catch((e) => { console.error(e) })
+      }
+    }
   })
 
   plugin.events.participantJoined.add(async (event) => {
@@ -157,6 +161,9 @@ const isRecording = (): boolean => {
  * Check if there is another user making a recording.
  */
 const isAnotherRecordingActive = (): boolean => {
+  if (participants == null) {
+    return false
+  }
   const vbrickDomain = new URL(config.vbrick.url).hostname
   const recordingParticipant = participants.find((participant) => {
     const domain = participant.uri.split('@')[1]

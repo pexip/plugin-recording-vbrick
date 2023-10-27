@@ -7,9 +7,6 @@ export const subscribeConferenceAlias = (): void => {
   plugin.events.authenticatedWithConference.add((conference) => {
     conferenceAlias = conference.conferenceAlias
   })
-  plugin.events.conferenceStatus.add((conference) => {
-    console.log(conference)
-  })
 }
 
 export const getConferenceAlias = (): string => {
