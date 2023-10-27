@@ -1,6 +1,6 @@
 # Plugin: Recording for vBrick
 
-This plugin allow the user to have recording the conference in the vBrick platform.
+This plugin allow the user to have recording the conference in the vBrick platform. Once the user click on the recording button, the Vbrick will join to the VMR as a SIP participant and will record the call.
 
 ## Plugin Configuration
 
@@ -14,15 +14,22 @@ Here is an example of configuration:
     "url": "https://pexip.rev-eu.demo.vbrick.com",
     "client_id": "my-client-id",
     "redirect_uri": "https://pexip-infinity.com/local-plugin/redirect"
+  },
+  "infinity": {
+    "sip_domain": "pexip-infinity.com"
   }
 }
 ```
 
-You have to define the following parameters:
+You have to define the following parameters under the `vbrick` section:
 
 - **url:** The Vbrick environment to use.
 - **client_id:** The key to access Vbrick.
-- **redirect_uri:** Location to redirect after a successful authentication. The domain of this URL should be
+- **redirect_uri:** Indicates where to redirect after a successful authentication. The domain of this URL take into account that we need to specify the same domain as the one used for our app and the branding.
+
+In the `infinity`` section we only have one parameter:
+
+* **sip_domain:** Indicates the domain to use in the SIP URI to make the recording. Vbrick will establish call to `sip:<conference_alias>@<sip_domain>`.
 
 You have to provision the `client_id` and `redirect_uri` into Vbrick.
   

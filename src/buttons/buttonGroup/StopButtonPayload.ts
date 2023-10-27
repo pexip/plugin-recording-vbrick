@@ -6,5 +6,6 @@ export const StopButtonPayload: GroupButtonPayload = {
   position: 'toolbar',
   icon: 'IconStopRound',
   tooltip: 'Stop recording',
-  roles: ['chair']
+  roles: ['chair'],
+  isActive: true
 }

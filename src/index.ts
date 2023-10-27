@@ -4,6 +4,7 @@ import { initAuthPopUp } from './authPopUp'
 import { Auth } from './auth'
 import { Recording } from './recording'
 import { setPlugin } from './plugin'
+import { subscribeConferenceAlias } from './conferenceAlias'
 
 const plugin = await registerPlugin({
   id: 'plugin-recording-vbrick',
@@ -11,6 +12,9 @@ const plugin = await registerPlugin({
 })
 
 setPlugin(plugin)
+
+subscribeConferenceAlias()
+Recording.init()
 
 Auth.emitter.on('login', () => {
   initButtonGroup().catch((e) => { console.error(e) })

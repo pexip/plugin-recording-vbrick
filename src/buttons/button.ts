@@ -6,10 +6,10 @@ import { Auth } from '../auth'
 import { VideosButtonPayload } from './buttonGroup/VideoButtonPayload'
 import { showLogoutPrompt } from '../logoutPrompt'
 import { Recording } from '../recording'
-
-import type { Button, RPCCallPayload } from '@pexip/plugin-api'
 import { StopButtonPayload } from './buttonGroup/StopButtonPayload'
 import { getPlugin } from '../plugin'
+
+import type { Button, RPCCallPayload } from '@pexip/plugin-api'
 
 const baseButtonPayload: RPCCallPayload<'ui:button:add'> = {
   position: 'toolbar',
@@ -34,9 +34,9 @@ export const initButton = async (): Promise<void> => {
 
   if (button != null) {
     await button.update(payload)
-    button.onClick.remove(handleClickGroup)
   } else {
     button = await plugin.ui.addButton(payload)
+    button.onClick.add(handleClickGroup)
   }
 }
 
@@ -51,19 +51,12 @@ export const initButtonGroup = async (): Promise<void> => {
   }
 
   await button.update(payload)
-
-  // Avoid to observer the event more than once
-  try {
-    button.onClick.add(handleClickGroup)
-  } catch (e) {
-    console.error(e)
-  }
 }
 
 const handleClickGroup = ({ buttonId }: { buttonId: string }): void => {
   switch (buttonId) {
     case ButtonId.Start: {
-      Recording.startRecording('My recoding', 'meet.marcoscereijo@pexipdemo.com', '').catch((e) => { console.error(e) })
+      Recording.startRecording().catch((e) => { console.error(e) })
       break
     }
     case ButtonId.Stop: {
@@ -78,7 +71,7 @@ const handleClickGroup = ({ buttonId }: { buttonId: string }): void => {
       break
     }
     default: {
-      throw new Error('Unknown button pressed')
+      window.plugin.popupManager.get(authPopUpId)?.focus()
     }
   }
 }

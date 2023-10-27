@@ -58,6 +58,10 @@ const getAccessToken = (): string => {
   return user?.access_token ?? ''
 }
 
+const getUser = (): User | null => {
+  return user
+}
+
 const refreshAccessToken = async (): Promise<void> => {
   if (user == null) {
     throw new Error('Cannot recover the user info from the localStorage')
@@ -125,6 +129,7 @@ export const Auth = {
   getAuthUrl,
   createAccessToken,
   getAccessToken,
+  getUser,
   refreshAccessToken,
   isSessionValid,
   logout,
