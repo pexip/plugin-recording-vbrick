@@ -40,5 +40,3 @@ await initButton()
 if (await Auth.isSessionValid()) {
   await Auth.refreshAccessToken()
 }
-
-await plugin.ui.showToast({ message: 'Hello plugin world👋' })
