@@ -16,13 +16,8 @@ const init = (): void => {
   const plugin = getPlugin()
 
   // Initialize the videoId at the beginning of the conference
-  plugin.events.me.add(() => {
-    if (!isAnotherRecordingActive()) {
-      videoId = ''
-      if (Auth.getUser() != null) {
-        initButtonGroup().catch((e) => { console.error(e) })
-      }
-    }
+  plugin.events.authenticatedWithConference.add(() => {
+    videoId = ''
   })
 
   plugin.events.participantJoined.add(async (event) => {

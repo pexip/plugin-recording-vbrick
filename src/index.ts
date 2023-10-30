@@ -39,4 +39,6 @@ await initButton()
 
 if (await Auth.isSessionValid()) {
   await Auth.refreshAccessToken()
+} else {
+  await Auth.cleanSession()
 }

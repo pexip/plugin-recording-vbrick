@@ -106,7 +106,6 @@ const isSessionValid = async (): Promise<boolean> => {
 
 const logout = async (): Promise<void> => {
   // Send the request to logoff endpoint
-  localStorage.removeItem(localStorageKey)
   const path = '/api/v2/user/logoff'
   const url = new URL(path, config.vbrick.url)
   await fetch(url, {
@@ -119,8 +118,13 @@ const logout = async (): Promise<void> => {
       'Content-Type': 'application/json'
     }
   })
-  user = null
+  cleanSession()
   emitter.emit('logout')
+}
+
+const cleanSession = (): void => {
+  localStorage.removeItem(localStorageKey)
+  user = null
 }
 
 const emitter = new EventEmitter()
@@ -133,6 +137,7 @@ export const Auth = {
   refreshAccessToken,
   isSessionValid,
   logout,
+  cleanSession,
   emitter
 }
 
