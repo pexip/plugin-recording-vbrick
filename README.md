@@ -4,19 +4,19 @@ This plugin allow the user to have recording the conference in the vBrick platfo
 
 ## Plugin Configuration
 
-The configuration file is located in `public/config.json`.
+You have to define a configuration file in `public/config.json`.
 
 Here is an example of configuration:
 
 ```json
 {
   "vbrick": {
-    "url": "https://pexip.rev-eu.demo.vbrick.com",
-    "client_id": "my-client-id",
-    "redirect_uri": "https://pexip-infinity.com/local-plugin/redirect"
+    "url": "https://<vbrick-domain>",
+    "client_id": "<vbrick-client-id>",
+    "redirect_uri": "https://<pexip-domain>/<branding>/redirect"
   },
   "infinity": {
-    "sip_domain": "pexip-infinity.com"
+    "sip_domain": "<pexip-domain>"
   }
 }
 ```
