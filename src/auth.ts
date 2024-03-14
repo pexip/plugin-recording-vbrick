@@ -21,17 +21,17 @@ interface User {
 
 const getAuthUrl = async (): Promise<string> => {
   const authPath = '/api/v2/oauth2/authorize'
-  const url = new URL(authPath, config.vbrick.url)
-  url.searchParams.set('client_id', config.vbrick.client_id)
+  const url = new URL(authPath, config.vbrick.url as string)
+  url.searchParams.set('client_id', config.vbrick.client_id as string)
   url.searchParams.set('code_challenge', await generateCodeChallenge())
   url.searchParams.set('response_type', 'code')
-  url.searchParams.set('redirect_uri', config.vbrick.redirect_uri)
+  url.searchParams.set('redirect_uri', config.vbrick.redirect_uri as string)
   return url.toString()
 }
 
 const createAccessToken = async (code: string): Promise<void> => {
   const path = '/api/v2/oauth2/token'
-  const url = new URL(path, config.vbrick.url)
+  const url = new URL(path, config.vbrick.url as string)
 
   const body = {
     code: code.replace(/ /g, '+'),
@@ -68,7 +68,7 @@ const refreshAccessToken = async (): Promise<void> => {
   }
 
   const path = '/api/v2/oauth2/token'
-  const url = new URL(path, config.vbrick.url)
+  const url = new URL(path, config.vbrick.url as string)
 
   const body = {
     grant_type: 'refresh_token',
@@ -92,7 +92,7 @@ const refreshAccessToken = async (): Promise<void> => {
 
 const isSessionValid = async (): Promise<boolean> => {
   const path = '/api/v2/user/session'
-  const url = new URL(path, config.vbrick.url)
+  const url = new URL(path, config.vbrick.url as string)
   const response = await fetch(url, {
     headers: {
       Authorization: `vbrick ${user?.access_token}`
@@ -107,7 +107,7 @@ const isSessionValid = async (): Promise<boolean> => {
 const logout = async (): Promise<void> => {
   // Send the request to logoff endpoint
   const path = '/api/v2/user/logoff'
-  const url = new URL(path, config.vbrick.url)
+  const url = new URL(path, config.vbrick.url as string)
   await fetch(url, {
     method: 'POST',
     body: JSON.stringify({
