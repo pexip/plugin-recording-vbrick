@@ -7,6 +7,10 @@ let user: User | null = JSON.parse(localStorage.getItem(localStorageKey) ?? 'nul
 
 let codeVerifier: string
 
+const marginInterval = 20
+const defaultExpiresIn = 1800
+let intervalRefreshToken: number = 0
+
 interface User {
   userId: string
   username: string
@@ -51,6 +55,11 @@ const createAccessToken = async (code: string): Promise<void> => {
 
   user = await response.json()
   localStorage.setItem(localStorageKey, JSON.stringify(user))
+
+  if (intervalRefreshToken === 0) {
+    startRefreshTokenInterval(user?.expires_in ?? defaultExpiresIn - marginInterval)
+  }
+
   emitter.emit('login')
 }
 
@@ -87,6 +96,11 @@ const refreshAccessToken = async (): Promise<void> => {
 
   user = await response.json()
   localStorage.setItem(localStorageKey, JSON.stringify(user))
+
+  if (intervalRefreshToken === 0) {
+    startRefreshTokenInterval(user?.expires_in ?? defaultExpiresIn - marginInterval)
+  }
+
   emitter.emit('refreshed_token')
 }
 
@@ -119,12 +133,24 @@ const logout = async (): Promise<void> => {
     }
   })
   cleanSession()
+  stopRefreshInterval()
   emitter.emit('logout')
 }
 
 const cleanSession = (): void => {
   localStorage.removeItem(localStorageKey)
   user = null
+}
+
+const startRefreshTokenInterval = (interval: number): void => {
+  intervalRefreshToken = setInterval(() => {
+    refreshAccessToken().catch((e) => { console.error(e) })
+  }, interval * 1000)
+}
+
+const stopRefreshInterval = (): void => {
+  clearInterval(intervalRefreshToken)
+  intervalRefreshToken = 0
 }
 
 const emitter = new EventEmitter()
