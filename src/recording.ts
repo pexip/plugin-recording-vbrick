@@ -21,7 +21,7 @@ const init = (): void => {
   })
 
   plugin.events.participantJoined.add(async (event) => {
-    const vbrickHostname = new URL(config.vbrick.url).hostname
+    const vbrickHostname = new URL(config.vbrick.url as string).hostname
 
     if (event.participant.uri.split('@')[1] === vbrickHostname) {
       (plugin.conference as any).sendRequest({
@@ -40,7 +40,7 @@ const init = (): void => {
   })
 
   plugin.events.participantLeft.add((event) => {
-    const vbrickHostname = new URL(config.vbrick.url).hostname
+    const vbrickHostname = new URL(config.vbrick.url as string).hostname
 
     if (event.participant.uri.split('@')[1] === vbrickHostname) {
       (plugin.conference as any).sendRequest({
@@ -59,23 +59,13 @@ const init = (): void => {
   // case the user reload the page
   plugin.events.participants.add(async (event) => {
     participants = event.participants
+  })
 
-    const domain = new URL(config.vbrick.url).hostname
-    const recordingUri = `sip:${Auth.getUser()?.username}@${domain}`
-
-    const recordingParticipant = participants.find((participant) => {
-      return participant.uri === recordingUri
-    })
-
-    if (recordingParticipant != null) {
-      if (isRecording()) {
-        videoId = ''
-      } else {
-        videoId = localStorage.getItem(localStorageKey) ?? ''
-        if (videoId !== '') {
-          await initButtonGroup()
-        }
-      }
+  plugin.events.participantLeft.add(async (event) => {
+    const participant = event.participant
+    if (isRecordingParticipant(participant)) {
+      videoId = ''
+      await initButtonGroup()
     }
   })
 }
@@ -94,7 +84,7 @@ const startRecording = async (): Promise<void> => {
   const pin = ''
 
   const path = '/api/v2/vc/start-recording'
-  const url = new URL(path, config.vbrick.url)
+  const url = new URL(path, config.vbrick.url as string)
 
   const body = {
     title: uri,
@@ -126,7 +116,7 @@ const stopRecording = async (): Promise<void> => {
   const plugin = getPlugin()
 
   const path = '/api/v2/vc/stop-recording'
-  const url = new URL(path, config.vbrick.url)
+  const url = new URL(path, config.vbrick.url as string)
 
   const body = { videoId }
 
@@ -159,13 +149,20 @@ const isAnotherRecordingActive = (): boolean => {
   if (participants == null) {
     return false
   }
-  const vbrickDomain = new URL(config.vbrick.url).hostname
+  const vbrickDomain = new URL(config.vbrick.url as string).hostname
   const recordingParticipant = participants.find((participant) => {
     const domain = participant.uri.split('@')[1]
     return domain === vbrickDomain
   })
   const active = recordingParticipant != null
   return active
+}
+
+const isRecordingParticipant = (participant: InfinityParticipant): boolean => {
+  const domain = new URL(config.vbrick.url as string).hostname
+  const recordingUri = `sip:${Auth.getUser()?.username}@${domain}`
+
+  return participant.uri === recordingUri
 }
 
 const emitter = new EventEmitter()
