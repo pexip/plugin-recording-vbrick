@@ -59,23 +59,13 @@ const init = (): void => {
   // case the user reload the page
   plugin.events.participants.add(async (event) => {
     participants = event.participants
+  })
 
-    const domain = new URL(config.vbrick.url as string).hostname
-    const recordingUri = `sip:${Auth.getUser()?.username}@${domain}`
-
-    const recordingParticipant = participants.find((participant) => {
-      return participant.uri === recordingUri
-    })
-
-    if (recordingParticipant != null) {
-      if (isRecording()) {
-        videoId = ''
-      } else {
-        videoId = localStorage.getItem(localStorageKey) ?? ''
-        if (videoId !== '') {
-          await initButtonGroup()
-        }
-      }
+  plugin.events.participantLeft.add(async (event) => {
+    const participant = event.participant
+    if (isRecordingParticipant(participant)) {
+      videoId = ''
+      await initButtonGroup()
     }
   })
 }
@@ -166,6 +156,13 @@ const isAnotherRecordingActive = (): boolean => {
   })
   const active = recordingParticipant != null
   return active
+}
+
+const isRecordingParticipant = (participant: InfinityParticipant): boolean => {
+  const domain = new URL(config.vbrick.url as string).hostname
+  const recordingUri = `sip:${Auth.getUser()?.username}@${domain}`
+
+  return participant.uri === recordingUri
 }
 
 const emitter = new EventEmitter()
