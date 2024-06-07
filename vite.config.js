@@ -14,6 +14,7 @@ export default {
   },
   server: {
     https: true,
+    port: config.port,
     open: config.brandingPath + '/',
     proxy: {
       [config.brandingPath]: {
