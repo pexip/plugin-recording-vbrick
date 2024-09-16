@@ -1,8 +1,9 @@
+import { defineConfig } from 'vite'
 import mkcert from 'vite-plugin-mkcert'
 
 import config from './vite.json'
 
-export default {
+export default defineConfig({
   base: './',
   build: {
     target: 'esnext',
@@ -32,4 +33,4 @@ export default {
   plugins: [
     mkcert()
   ]
-}
+})

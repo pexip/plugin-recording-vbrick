@@ -1,9 +1,10 @@
 import EventEmitter from 'eventemitter3'
 import { config } from './config'
+import { LocalStorageKey } from './LocalStorageKey'
 
-const localStorageKey = 'vbrick:user-authenticated'
-
-let user: User | null = JSON.parse(localStorage.getItem(localStorageKey) ?? 'null')
+let user: User | null = JSON.parse(
+  localStorage.getItem(LocalStorageKey.User) ?? 'null'
+)
 
 let codeVerifier: string
 
@@ -25,17 +26,17 @@ interface User {
 
 const getAuthUrl = async (): Promise<string> => {
   const authPath = '/api/v2/oauth2/authorize'
-  const url = new URL(authPath, config.vbrick.url as string)
-  url.searchParams.set('client_id', config.vbrick.client_id as string)
+  const url = new URL(authPath, config.vbrick.url)
+  url.searchParams.set('client_id', config.vbrick.client_id)
   url.searchParams.set('code_challenge', await generateCodeChallenge())
   url.searchParams.set('response_type', 'code')
-  url.searchParams.set('redirect_uri', config.vbrick.redirect_uri as string)
+  url.searchParams.set('redirect_uri', config.vbrick.redirect_uri)
   return url.toString()
 }
 
 const createAccessToken = async (code: string): Promise<void> => {
   const path = '/api/v2/oauth2/token'
-  const url = new URL(path, config.vbrick.url as string)
+  const url = new URL(path, config.vbrick.url)
 
   const body = {
     code: code.replace(/ /g, '+'),
@@ -54,10 +55,12 @@ const createAccessToken = async (code: string): Promise<void> => {
   })
 
   user = await response.json()
-  localStorage.setItem(localStorageKey, JSON.stringify(user))
+  localStorage.setItem(LocalStorageKey.User, JSON.stringify(user))
 
   if (intervalRefreshToken === 0) {
-    startRefreshTokenInterval(user?.expires_in ?? defaultExpiresIn - marginInterval)
+    startRefreshTokenInterval(
+      user?.expires_in ?? defaultExpiresIn - marginInterval
+    )
   }
 
   emitter.emit('login')
@@ -71,13 +74,17 @@ const getUser = (): User | null => {
   return user
 }
 
+const isAuthenticated = (): boolean => {
+  return user != null
+}
+
 const refreshAccessToken = async (): Promise<void> => {
   if (user == null) {
     throw new Error('Cannot recover the user info from the localStorage')
   }
 
   const path = '/api/v2/oauth2/token'
-  const url = new URL(path, config.vbrick.url as string)
+  const url = new URL(path, config.vbrick.url)
 
   const body = {
     grant_type: 'refresh_token',
@@ -95,10 +102,12 @@ const refreshAccessToken = async (): Promise<void> => {
   })
 
   user = await response.json()
-  localStorage.setItem(localStorageKey, JSON.stringify(user))
+  localStorage.setItem(LocalStorageKey.User, JSON.stringify(user))
 
   if (intervalRefreshToken === 0) {
-    startRefreshTokenInterval(user?.expires_in ?? defaultExpiresIn - marginInterval)
+    startRefreshTokenInterval(
+      user?.expires_in ?? defaultExpiresIn - marginInterval
+    )
   }
 
   emitter.emit('refreshed_token')
@@ -106,7 +115,7 @@ const refreshAccessToken = async (): Promise<void> => {
 
 const isSessionValid = async (): Promise<boolean> => {
   const path = '/api/v2/user/session'
-  const url = new URL(path, config.vbrick.url as string)
+  const url = new URL(path, config.vbrick.url)
   const response = await fetch(url, {
     headers: {
       Authorization: `vbrick ${user?.access_token}`
@@ -121,7 +130,7 @@ const isSessionValid = async (): Promise<boolean> => {
 const logout = async (): Promise<void> => {
   // Send the request to logoff endpoint
   const path = '/api/v2/user/logoff'
-  const url = new URL(path, config.vbrick.url as string)
+  const url = new URL(path, config.vbrick.url)
   await fetch(url, {
     method: 'POST',
     body: JSON.stringify({
@@ -138,13 +147,15 @@ const logout = async (): Promise<void> => {
 }
 
 const cleanSession = (): void => {
-  localStorage.removeItem(localStorageKey)
+  localStorage.removeItem(LocalStorageKey.User)
   user = null
 }
 
 const startRefreshTokenInterval = (interval: number): void => {
   intervalRefreshToken = setInterval(() => {
-    refreshAccessToken().catch((e) => { console.error(e) })
+    refreshAccessToken().catch((e) => {
+      console.error(e)
+    })
   }, interval * 1000)
 }
 
@@ -160,6 +171,7 @@ export const Auth = {
   createAccessToken,
   getAccessToken,
   getUser,
+  isAuthenticated,
   refreshAccessToken,
   isSessionValid,
   logout,
@@ -176,16 +188,27 @@ const generateCodeChallenge = async (): Promise<string> => {
 const randomVerifier = (byteLength: number): string => {
   const randomValues = crypto.getRandomValues(new Uint8Array(byteLength / 2))
   return Array.from(randomValues)
-    .map(c => c.toString(16).padStart(2, '0'))
+    .map((c) => c.toString(16).padStart(2, '0'))
     .join('')
 }
 
 const sha256hash = async (value: string): Promise<string> => {
   const bytes = new TextEncoder().encode(value)
   const hashed = await crypto.subtle.digest('SHA-256', bytes)
-  const binary = String.fromCharCode(...(new Uint8Array(hashed)))
-  return btoa(binary)
-    .replace(/\//g, '_')
-    .replace(/\+/g, '-')
-    .replace(/=+$/, '')
+  const binary = String.fromCharCode(...new Uint8Array(hashed))
+  return btoa(binary).replace(/\//g, '_').replace(/\+/g, '-').replace(/=+$/, '')
 }
+
+const handleMessage = (event: any): void => {
+  const search: string = event.data.search
+
+  if (search != null) {
+    const code = new URLSearchParams(search).get('code')
+    if (code != null) {
+      console.log('code', code)
+      Auth.createAccessToken(code).catch(console.error)
+    }
+  }
+}
+
+window.addEventListener('message', handleMessage)

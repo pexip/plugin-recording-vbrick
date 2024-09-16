@@ -2,6 +2,10 @@
 
 This plugin allow the user to have recording the conference in the vBrick platform. Once the user click on the recording button, the Vbrick will join to the VMR as a SIP participant and will record the call.
 
+## How to use
+
+The host user will see a new button in the toolbar.
+
 ## Plugin Configuration
 
 You have to define a configuration file in `public/config.json`.
