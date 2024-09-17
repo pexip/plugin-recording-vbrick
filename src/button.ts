@@ -107,6 +107,7 @@ const getGroup = async (): Promise<GroupButtonPayload[]> => {
 const handleClickGroup = ({ buttonId }: { buttonId: string }): void => {
   switch (buttonId) {
     case ButtonId.Login: {
+      focusPopUp(authPopUpId)
       break
     }
     case ButtonId.Logout: {
@@ -122,10 +123,14 @@ const handleClickGroup = ({ buttonId }: { buttonId: string }): void => {
       break
     }
     case ButtonId.Videos: {
+      focusPopUp(videosPopUpId)
       break
     }
-    // default: {
-    //   window.plugin.popupManager.get(authPopUpId)?.focus()
-    // }
   }
+}
+
+const focusPopUp = (id: string): void => {
+  setTimeout(() => {
+    window.plugin.popupManager.get(id)?.focus()
+  }, 0)
 }
