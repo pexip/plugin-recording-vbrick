@@ -14,8 +14,6 @@ let participants: InfinityParticipant[] = []
 const init = (): void => {
   // Initialize the videoId at the beginning of the conference
   plugin.events.authenticatedWithConference.add(() => {
-    console.log('Authenticated with conference')
-    console.log('Participant list', participants)
     if (participants.length === 0) {
       videoId = ''
     }
