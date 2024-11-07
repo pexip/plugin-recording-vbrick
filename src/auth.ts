@@ -75,11 +75,11 @@ const getUser = (): User | null => {
 }
 
 const isAuthenticated = (): boolean => {
-  return user != null
+  return user !== null
 }
 
 const refreshAccessToken = async (): Promise<void> => {
-  if (user == null) {
+  if (user === null) {
     throw new Error('Cannot recover the user info from the localStorage')
   }
 
